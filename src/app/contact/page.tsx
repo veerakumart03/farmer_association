@@ -25,9 +25,8 @@ export default function Contact() {
               <div className="space-y-1">
                 <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block">முகவரி / Address</span>
                 <p className="text-xs sm:text-sm text-slate-400 leading-normal">
-                  தலைமை அலுவலகம், விவசாய பாதுகாப்பு மற்றும் வளர்ச்சி நல சங்கம்,<br/>
-                  12, அண்ணா சாலை, சென்னை - 600002,<br/>
-                  தமிழ்நாடு, இந்தியா.
+                  விவசாய பாதுகாப்பு மற்றும் வளர்ச்சி நல சங்கம், 249/1B, ராசி நகர்,<br/>
+                  வேலம்பட்டி, பழனி, திண்டுக்கல்.
                 </p>
               </div>
             </div>
@@ -36,7 +35,7 @@ export default function Contact() {
               <Phone className="h-5 w-5 text-emerald-400 shrink-0" />
               <div className="space-y-0.5">
                 <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block">தொலைபேசி / Phone</span>
-                <p className="text-xs sm:text-sm text-slate-300 font-semibold">+91 98765 43210</p>
+                <p className="text-xs sm:text-sm text-slate-300 font-semibold">+91 95850 05304</p>
               </div>
             </div>
 
@@ -44,7 +43,7 @@ export default function Contact() {
               <Mail className="h-5 w-5 text-amber-500 shrink-0" />
               <div className="space-y-0.5">
                 <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block">மின்னஞ்சல் / Email</span>
-                <p className="text-xs sm:text-sm text-slate-300 font-semibold">support@vpvs.org.in</p>
+                <p className="text-xs sm:text-sm text-slate-300 font-semibold">farmerassociation2026@gmail.com</p>
               </div>
             </div>
           </div>

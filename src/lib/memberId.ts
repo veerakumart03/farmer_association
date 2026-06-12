@@ -2,14 +2,14 @@ import { supabaseAdmin } from './supabase';
 
 /**
  * Generates the next sequential Member ID for the current year.
- * Format: VPVS + Year (2 digits) + 6-digit sequence (e.g., VPVS26000001)
+ * Format: FWA + Year (2 digits) + 6-digit sequence (e.g., FWA26000001)
  */
 export async function generateNextMemberId(): Promise<string> {
   const yearSuffix = new Date().getFullYear().toString().slice(-2); // e.g., "26"
-  const prefix = `VPVS${yearSuffix}`;
+  const prefix = `FWA${yearSuffix}`;
 
   try {
-    // Fetch the maximum member_id that matches the pattern 'VPVS[Year]%'
+    // Fetch the maximum member_id that matches the pattern 'FWA[Year]%'
     const { data, error } = await supabaseAdmin
       .from('members')
       .select('member_id')

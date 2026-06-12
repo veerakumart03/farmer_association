@@ -103,11 +103,11 @@ export default function Footer() {
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="h-4 w-4 text-emerald-400 shrink-0" />
-                <span className="text-slate-300 font-medium">+91 98765 43210</span>
+                <span className="text-slate-300 font-medium">+91 95850 05304</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-emerald-400 shrink-0" />
-                <span className="text-slate-300 font-medium">support@vpvs.org.in</span>
+                <span className="text-slate-300 font-medium">farmerassociation2026@gmail.com</span>
               </li>
             </ul>
           </div>

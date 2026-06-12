@@ -84,7 +84,7 @@ const translations = {
     'contact.success': 'உங்களின் செய்தி வெற்றிகரமாக அனுப்பப்பட்டது. எங்கள் குழுவினர் விரைவில் உங்களைத் தொடர்பு கொள்வார்கள்!',
     'contact.info.title': 'தலைமை அலுவலகத் தொடர்பு',
     'contact.info.addressLabel': 'முகவரி / Address',
-    'contact.info.address': 'தலைமை அலுவலகம், விவசாய பாதுகாப்பு மற்றும் வளர்ச்சி நல சங்கம், 12, அண்ணா சாலை, சென்னை - 600002, தமிழ்நாடு, இந்தியா.',
+    'contact.info.address': 'விவசாய பாதுகாப்பு மற்றும் வளர்ச்சி நல சங்கம், 249/1B, ராசி நகர், வேலம்பட்டி, பழனி, திண்டுக்கல்.',
     'contact.info.phoneLabel': 'தொலைபேசி / Phone',
     'contact.info.emailLabel': 'மின்னஞ்சல் / Email',
 
@@ -157,7 +157,7 @@ const translations = {
     'footer.farmerReg': 'Farmer Registration',
     'footer.myDashboard': 'My Dashboard',
     'footer.addressLabel': 'Address',
-    'footer.address': 'Head Office, Farmers Protection & Development Welfare Association, Tamil Nadu, India.',
+    'footer.address': 'Farmers Protection & Development Welfare Association, 249/1B, Rasi Nagar, Velampatti, Palani, Dindigul, Tamil Nadu, India.',
     'footer.copyright': 'Farmers Protection & Development Welfare Association. All rights reserved.',
     'footer.slogan': 'Agriculture is the Backbone of the Nation',
 

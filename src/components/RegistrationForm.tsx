@@ -19,11 +19,91 @@ export default function RegistrationForm() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [pin, setPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpStatusMessage, setOtpStatusMessage] = useState<string | null>(null);
+  const [otpError, setOtpError] = useState<string | null>(null);
 
   // UX states
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successData, setSuccessData] = useState<{ member_id: string } | null>(null);
+
+  const handleSendOtp = async () => {
+    setOtpError(null);
+    setOtpStatusMessage(null);
+
+    if (!mobile || !/^\d{10}$/.test(mobile)) {
+      setOtpError('மொபைல் எண் 10 இலக்க எண்ணாக இருக்க வேண்டும்.');
+      return;
+    }
+
+    setOtpSending(true);
+    setOtpVerified(false);
+
+    try {
+      const res = await fetch('/api/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || data.message || 'OTP அனுப்புவதில் ஏதாவது சரியாகவில்லை.');
+      }
+
+      setSessionId(data.sessionId);
+      setOtpStatusMessage('OTP வெற்றிகரமாக அனுப்பப்பட்டது. தயவுசெய்து OTP-ஐ உள்ளிடவும்.');
+      setOtpError(null);
+    } catch (err: any) {
+      setOtpError(err.message || 'OTP அனுப்ப முடியவில்லை.');
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setOtpError(null);
+    setOtpStatusMessage(null);
+
+    if (!sessionId) {
+      setOtpError('முந்தைய கட்டத்தில் OTP அனுப்பவும்.');
+      return;
+    }
+
+    if (!otpCode || !/^\d{6}$/.test(otpCode)) {
+      setOtpError('தயவுசெய்து 6 இலக்க OTP-ஐ உள்ளிடவும்.');
+      return;
+    }
+
+    setOtpVerifying(true);
+
+    try {
+      const res = await fetch('/api/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, otp: otpCode }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'OTP சரிபார்ப்பு வெற்றியடையவில்லை.');
+      }
+
+      setOtpVerified(true);
+      setOtpStatusMessage('மொபைல் எண் வெற்றிகரமாக சரிபார்க்கப்பட்டது.');
+      setOtpError(null);
+    } catch (err: any) {
+      setOtpError(err.message || 'OTP சரிபார்க்க முடியவில்லை.');
+      setOtpVerified(false);
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
 
   // Photo change handler
   const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -63,6 +143,10 @@ export default function RegistrationForm() {
       setErrorMsg('மொபைல் எண் 10 இலக்க எண்ணாக இருக்க வேண்டும்.');
       return;
     }
+    if (!otpVerified) {
+      setErrorMsg('Please verify your mobile number before registration.');
+      return;
+    }
     if (aadhar && (aadhar.length !== 12 || !/^\d{12}$/.test(aadhar))) {
       setErrorMsg('ஆதார் எண் 12 இலக்க எண்ணாக இருக்க வேண்டும்.');
       return;
@@ -92,6 +176,7 @@ export default function RegistrationForm() {
       formData.append('village', village.trim());
       formData.append('photo', photo);
       formData.append('pin', pin);
+      formData.append('otpVerified', otpVerified ? 'true' : 'false');
 
       const res = await fetch('/api/auth/register', {
         method: 'POST',
@@ -180,17 +265,64 @@ export default function RegistrationForm() {
               <input
                 type="tel"
                 value={mobile}
-                onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').substring(0, 10))}
+                onChange={(e) => {
+                  if (otpVerified) return;
+                  setMobile(e.target.value.replace(/\D/g, '').substring(0, 10));
+                }}
                 required
                 maxLength={10}
                 placeholder="10 இலக்க மொபைல் எண்"
-                className="w-full pl-10 pr-4 py-2.5 bg-emerald-950/40 border border-emerald-900/80 rounded-xl text-white text-sm focus:outline-none focus:border-amber-500 transition-colors placeholder:text-emerald-700/60"
+                disabled={otpSending || otpVerifying || otpVerified}
+                className="w-full pl-10 pr-4 py-2.5 bg-emerald-950/40 border border-emerald-900/80 rounded-xl text-white text-sm focus:outline-none focus:border-amber-500 transition-colors placeholder:text-emerald-700/60 disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
           </div>
         </div>
 
-        {/* Row 2: Aadhaar Number */}
+        {/* Row 2: OTP Verification */}
+        <div className="grid grid-cols-1 sm:grid-cols-[1.5fr_auto] gap-4">
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-emerald-300 uppercase tracking-wider block">OTP குறியீடு (OTP Code)</label>
+            <div className="relative">
+              <ShieldCheck className="absolute left-3 top-3 h-4 w-4 text-emerald-500/70" />
+              <input
+                type="text"
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').substring(0, 6))}
+                maxLength={6}
+                placeholder="6 இலக்க OTP குறியீடு"
+                disabled={!sessionId || otpVerified}
+                className="w-full pl-10 pr-4 py-2.5 bg-emerald-950/40 border border-emerald-900/80 rounded-xl text-white text-sm focus:outline-none focus:border-amber-500 transition-colors placeholder:text-emerald-700/60 disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+            </div>
+            {otpStatusMessage && <p className="text-xs text-emerald-300">{otpStatusMessage}</p>}
+            {otpError && <p className="text-xs text-rose-300">{otpError}</p>}
+            {!otpVerified && (
+              <p className="text-xs text-amber-300">Please verify your mobile number before registration.</p>
+            )}
+          </div>
+
+          <div className="flex flex-col justify-end gap-3">
+            <button
+              type="button"
+              onClick={handleSendOtp}
+              disabled={otpSending || otpVerifying || otpVerified || mobile.length !== 10}
+              className="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-emerald-950 font-semibold rounded-xl shadow-sm transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {otpSending ? 'OTP அனுப்பப்படுகிறது...' : sessionId ? 'OTP மீண்டும் அனுப்பு' : 'OTP அனுப்பு'}
+            </button>
+            <button
+              type="button"
+              onClick={handleVerifyOtp}
+              disabled={!sessionId || otpVerifying || otpVerified}
+              className="w-full inline-flex items-center justify-center px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-emerald-950 font-semibold rounded-xl shadow-sm transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {otpVerifying ? 'OTP சரிபார்க்கப்படுகிறது...' : otpVerified ? 'OTP சரிபார்க்கப்பட்டது' : 'OTP சரிபார்க்கவும்'}
+            </button>
+          </div>
+        </div>
+
+        {/* Row 3: Aadhaar Number */}
         <div className="space-y-1.5">
           <label className="text-xs font-bold text-emerald-300 uppercase tracking-wider block">ஆதார் எண் (Aadhaar Number) <span className="text-[10px] text-emerald-500/70 lowercase font-normal">(optional)</span></label>
           <div className="relative">
@@ -325,8 +457,8 @@ export default function RegistrationForm() {
         {/* Submit */}
         <button
           type="submit"
-          disabled={loading}
-          className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-emerald-950 font-extrabold rounded-xl shadow-lg hover:shadow-amber-500/10 active:scale-98 transition-all duration-200 flex items-center justify-center space-x-2"
+          disabled={loading || !otpVerified}
+          className="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-emerald-950 font-extrabold rounded-xl shadow-lg hover:shadow-amber-500/10 active:scale-98 transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>

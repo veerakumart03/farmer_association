@@ -39,6 +39,25 @@ export function verifyToken(token: string): JWTPayload | null {
   }
 }
 
+const OTP_SECRET = process.env.OTP_SECRET || JWT_SECRET;
+
+type OtpTokenPayload = {
+  mobile: string;
+  otp: string;
+};
+
+export function signOtpToken(mobile: string, otp: string): string {
+  return jwt.sign({ mobile, otp }, OTP_SECRET, { expiresIn: '5m' });
+}
+
+export function verifyOtpToken(token: string): OtpTokenPayload | null {
+  try {
+    return jwt.verify(token, OTP_SECRET) as OtpTokenPayload;
+  } catch (error) {
+    return null;
+  }
+}
+
 // Helpers for Server Side Cookie Management
 export async function getSession() {
   const cookieStore = await cookies();

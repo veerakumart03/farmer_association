@@ -13,7 +13,15 @@ export async function POST(request: Request) {
     const taluk = formData.get('taluk') as string;
     const village = formData.get('village') as string;
     const pin = formData.get('pin') as string;
+    const otpVerified = formData.get('otpVerified') === 'true';
     const photo = formData.get('photo') as File | null;
+
+    if (!otpVerified) {
+      return NextResponse.json(
+        { message: 'Mobile number verification required.' },
+        { status: 400 }
+      );
+    }
 
     // 1. Basic validation
     if (!name || !mobile || !district || !taluk || !village || !pin) {
@@ -176,11 +184,13 @@ export async function POST(request: Request) {
     
     await setSessionCookie(sessionPayload);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       member_id: memberId,
       message: 'Registration successful!',
     });
+
+    return response;
   } catch (err: any) {
     console.error('Registration API error:', err);
     return NextResponse.json(
